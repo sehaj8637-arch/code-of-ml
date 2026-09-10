@@ -1,0 +1,136 @@
+#Step 1: Import Libraries
+import pandas as pd
+import numpy as np
+
+from google.colab import files
+from sklearn.preprocessing import LabelEncoder,StandardScaler
+
+#step 2:Upload dataset
+uploaded = files.upload()
+
+#step 3: Load Dataset
+df = pd.read_csv("Titanic Dataset.csv")
+print("First Five Records")
+print(df.head())
+
+#step 4:Dataset Information
+print("\n Dataset Information")
+print(df.info())
+
+print("\n Shape of Dataset")
+print(df.shape)
+
+print("\n Column Names")
+print(df.columns)
+
+print("\n Statistical Summary")
+print(df.describe())
+
+#Step 5: Check Missing Values
+print("\nMissing Values Before Processing")
+print(df.isnull().sum())
+
+#Step 6:Handle Missing Values
+#fill Age  with Median
+df['Age'].fillna(df['Age'].median(),inplace=True)
+
+#fill Embarked with Mode
+df['Embarked'].fillna(df['Embarked'].mode()[0],inplace=True)
+
+#Drop Cabin Column(contains many missing values)
+if "Cabin" in df.columns:
+  df.drop("Cabin",axis=1,inplace=True)
+
+print("\nMissing Values After Processing")
+print(df.isnull().sum())
+
+#Step 7: Check Duplicate Records
+print("\nDuplicate Records Before Removal:",df.duplicated().sum())
+
+#Removal duplicates
+df.drop_duplicates(inplace=True)
+print("\nDuplicate Records After Removal:",df.duplicated().sum())
+
+#Step 8: Detect and Treat Outliers(Age)
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+
+# Step 8: Detect and Treat Outliers (Age)
+
+Q1 = df["Age"].quantile(0.25)
+Q3 = df["Age"].quantile(0.75)
+
+IQR = Q3 - Q1
+
+Lower_bound = Q1 - 1.5 * IQR
+Upper_bound = Q3 + 1.5 * IQR
+
+print("\nAge Outliers")
+print(df[(df["Age"] < Lower_bound) | (df["Age"] > Upper_bound)])
+
+# Treat Outliers
+df["Age"] = np.clip(df["Age"], Lower_bound, Upper_bound)
+
+# Step 9: Detect and Treat Outliers (Fare)
+
+Q1 = df["Fare"].quantile(0.25)
+Q3 = df["Fare"].quantile(0.75)
+
+IQR = Q3 - Q1
+
+Lower_bound = Q1 - 1.5 * IQR
+Upper_bound = Q3 + 1.5 * IQR
+
+print("\nFare Outliers")
+print(df[(df["Fare"] < Lower_bound) | (df["Fare"] > Upper_bound)])
+
+# Treat Outliers
+df["Fare"] = np.clip(df["Fare"], Lower_bound, Upper_bound)
+
+# Step 10: Encode Categorical Features
+
+encoder = LabelEncoder()
+
+# Encode Gender
+df["Gender"] = encoder.fit_transform(df["Gender"])
+
+# Encode Embarked
+df["Embarked"] = encoder.fit_transform(df["Embarked"])
+
+print("\nEncoded Columns")
+print(df[["Gender", "Embarked"]].head())
+
+
+#Step 11: Standard Scaler
+
+scaler =StandardScaler()
+
+df[["Age","Fare"]] = scaler.fit_transform(df[["Age","Fare"]])
+
+print("\nScaled Age and Fare")
+print(df[["Age","Fare"]].head())
+
+#Step 12:Remove Noise
+
+columns_to_remove = ["PassengerId","Name","Ticket"]
+
+for col in columns_to_remove:
+  if col in df.columns:
+    df.drop(col,axis=1,inplace=True)
+
+#Step 13: Final Dataset
+
+# Step Homework: Load Dataset
+import pandas as pd
+
+df = pd.read_csv("Titanic Dataset.csv")
+
+print("Last Five Records")
+print(df.tail())
+
+#step 14: Final Dataset information
+print(df.info())
+print(df.head())
+
+
+
